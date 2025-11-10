@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # MongoDB
+  mongodb:
+    image: mongo:latest
+    container_name: tasksync-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: tasksync-ai
+
+  # Redis
+  redis:
+    image: redis:alpine
+    container_name: tasksync-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # Kafka & Zookeeper
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: tasksync-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: tasksync-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  # Backend
+  backend:
+    build: ./backend
+    container_name: tasksync-backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+      - redis
+      - kafka
+    environment:
+      NODE_ENV: development
+      MONGO_URI: mongodb://mongodb:27017/tasksync-ai
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKER: kafka:9092
+      AI_ENGINE_URL: http://ai-engine:8000
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  # AI Engine
+  ai-engine:
+    build: ./ai-engine
+    container_name: tasksync-ai-engine
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ai-engine:/app
+
+  # Nginx (optional load balancer)
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: tasksync-nginx
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  #   depends_on:
+  #     - backend
+  #     - ai-engine
+
+volumes:
+  mongodb_data:
+  redis_data:

@@ -1,0 +1,37 @@
+{
+  "name": "tasksync-ai-backend",
+  "version": "1.0.0",
+  "description": "Backend for TaskSync AI - AI-powered task management",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "keywords": ["task-management", "ai", "nodejs", "express"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.0.3",
+    "dotenv": "^16.0.3",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "morgan": "^1.10.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "redis": "^4.6.5",
+    "kafkajs": "^2.2.4",
+    "passport": "^0.6.0",
+    "passport-google-oauth20": "^2.0.0",
+    "winston": "^3.8.2",
+    "node-cron": "^3.0.2",
+    "axios": "^1.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "eslint": "^8.40.0",
+    "jest": "^29.5.0"
+  }
+}
